@@ -17,7 +17,7 @@ category = st.selectbox(
 if category == "Top Up Toko Crypto":
     total_topup = data[data['keterangan'] == 'Top Up Toko Crypto']['rupiah'].sum()
     col1,col2 = st.columns(2)
-    col1.metric("Total Topup", total_topup, border=True)
+    col1.metric("Total Topup", f"{total_topup:,.2f}", border=True)
     col2.metric("Saldo Toko Crypto", f"{data['saldo_toko'].sum():,.2f}", border=True)
     with st.form("my_form", clear_on_submit=True):
         selectedcategory = "Top Up Toko Crypto"
