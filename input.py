@@ -3,7 +3,6 @@ import sqlite3
 from database import input_data, transaction_data
 import datetime
 
-st.write("hey")
 
 data = transaction_data()
 
