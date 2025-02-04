@@ -16,6 +16,9 @@ data = transaction_data()
 st.title("Dashboard")
 st.divider()
 
+withdraw = data[data['keterangan'] == 'Transfer to Bank Account']['rupiah'].sum()
+
+st.metric("Total Withdraw", f"{withdraw:,.0f}", border=True)
 col1, col2 = st.columns(2)
 total_topup = data[data['keterangan'] == 'Top Up Toko Crypto']['rupiah'].sum()
 col1.metric(label="Total Topup", value=f"Rp {total_topup:,.0f}", border=True)
@@ -38,13 +41,15 @@ usdt_binance = data['usdt_binance'].sum()
 col1,col2 = st.columns(2)
 st.metric("USDT Binance",f"{usdt_binance:,.2f}", border=True)
 
+average_coin_rate = data[data['keterangan'] == 'Buy Coin on Binance']
+average_coin_rate = average_coin_rate.groupby('coin').agg({
+    'rate': 'mean',
+    'QtyCoin': 'sum'
+}).reset_index()
 
-
-grouped_coin = data.groupby('coin')['QtyCoin'].sum().reset_index()
-grouped_coin = grouped_coin[grouped_coin['coin'] != ""]
-
+average_coin_rate.rename(columns={'rate' : 'AvgBuyRate'}, inplace=True)
 st.subheader("Coin List")
-st.dataframe(grouped_coin)
+st.dataframe(average_coin_rate)
 
 
 with st.expander("Purchase Coin History") :

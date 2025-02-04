@@ -1,10 +1,11 @@
 import streamlit as st
 import sqlite3
-from database import input_data
+from database import input_data, transaction_data
 import datetime
 
-
 st.write("hey")
+
+data = transaction_data()
 
 category = st.selectbox(
     "Select a category",
@@ -14,6 +15,10 @@ category = st.selectbox(
 
 
 if category == "Top Up Toko Crypto":
+    total_topup = data[data['keterangan'] == 'Top Up Toko Crypto']['rupiah'].sum()
+    col1,col2 = st.columns(2)
+    col1.metric("Total Topup", total_topup, border=True)
+    col2.metric("Saldo Toko Crypto", f"{data['saldo_toko'].sum():,.2f}", border=True)
     with st.form("my_form", clear_on_submit=True):
         selectedcategory = "Top Up Toko Crypto"
         rupiah = st.number_input("Rupiah", format="%.10f")
@@ -29,6 +34,11 @@ if category == "Top Up Toko Crypto":
             
             
 elif category == "Buy USDT on Toko Crypto":
+    col1,col2 = st.columns(2)
+    col1.metric("Saldo Toko Crypto", f"{data['saldo_toko'].sum():,.2f}", border=True)
+    col2.metric("USDT Toko Crypto", f"{data['usdt'].sum():,.2f}", border=True)
+    usdt_rate = data[data['keterangan'] == 'Buy USDT on Toko Crypto']['rate'].mean()
+    st.metric("Average Buy Rate USDT",f"{usdt_rate:,.2f}", border=True )
     with st.form("my_form", clear_on_submit=True):
         selectedcategory = "Buy USDT on Toko Crypto"
         saldo = st.number_input("Saldo Toko Crypto", format="%.10f")
@@ -45,6 +55,9 @@ elif category == "Buy USDT on Toko Crypto":
             
             
 elif category == "Transfer USDT to Binance":
+    col1,col2 = st.columns(2)
+    col1.metric("USDT Toko Crypto", f"{data['usdt'].sum():,.2f}", border=True)
+    col2.metric("USDT Binance", f"{data['usdt_binance'].sum():,.2f}", border=True)
     with st.form("my_form", clear_on_submit=True):
         selectedcategory = "Transfer USDT to Binance"
         usdt = st.number_input("USDT", format="%.10f")
@@ -60,11 +73,23 @@ elif category == "Transfer USDT to Binance":
             
             
 elif category == "Buy Coin on Binance":
+    coin_list = data[data['coin'] != ""]
+    coin_list = coin_list['coin'].unique()
+    with st.expander("See Avg Buy Rate Coin"):
+        coin = st.selectbox(
+            "Select Coin",
+            coin_list
+        )
+        average_coin_rate = data[(data['coin'] == coin) & (data['keterangan'] == 'Buy Coin on Binance')]['rate'].mean()
+        
+        st.metric("Average Buy Rate Coin", f"{average_coin_rate:,.2f}", border=True)
+
+
     with st.form("my_form", clear_on_submit=True):
+        coin = st.text_input("Coin")
+        rate = st.number_input("Rate", format="%.10f")
         selectedcategory = "Buy Coin on Binance"
         usdt_binance = st.number_input("USDT Binance", format="%.10f")
-        rate = st.number_input("Rate", format="%.10f")
-        coin = st.text_input("Coin")
         QtyCoin = st.number_input("QtyCoin", format="%.10f")
         
         button = st.form_submit_button("Submit")
@@ -77,12 +102,25 @@ elif category == "Buy Coin on Binance":
             
             
 elif category == "Sell Coin on Binance":
+
+    with st.expander("See Avg Sell Rate Coin"):
+        coin_list = data[data['coin'] != ""]
+        coin_list = coin_list['coin'].unique()
+        coin = st.selectbox(
+            "Select Coin",
+            coin_list
+        )
+
+        average_coin_rate = data[(data['coin'] == coin) & (data['keterangan'] == 'Sell Coin on Binance')]['rate'].mean()
+        
+        st.metric("Average Sell Rate Coin", f"{average_coin_rate:,.2f}", border=True)
+
     with st.form("my_form", clear_on_submit=True):
         selectedcategory = "Sell Coin on Binance"
-        usdt_binance = st.number_input("USDT Binance", format="%.10f")
-        rate = st.number_input("Rate", format="%.10f")
         coin = st.text_input("Coin")
         QtyCoin = st.number_input("QtyCoin", format="%.10f")
+        rate = st.number_input("Rate", format="%.10f")
+        usdt_binance = st.number_input("USDT Binance", format="%.10f")
         
         button = st.form_submit_button("Submit")
         
@@ -95,6 +133,10 @@ elif category == "Sell Coin on Binance":
             
             
 elif category == "Transfer USDT to Toko Crypto":
+    col1,col2 = st.columns(2)
+
+    col1.metric("USDT Binance", f"{data['usdt_binance'].sum():,.2f}", border=True)
+    col2.metric("USDT Toko Crypto", f"{data['usdt'].sum():,.2f}", border=True)
     with st.form("my_form", clear_on_submit=True):
         selectedcategory = "Transfer USDT to Toko Crypto"
         usdt_binance = st.number_input("USDT on Binance", format="%.10f")
@@ -126,6 +168,10 @@ elif category == "Sell USDT on Toko Crypto":
             
             
 elif category == "Transfer to Bank Account":
+    col1,col2 = st.columns(2)
+
+    col1.metric("Saldo Toko Crypto", f"{data['saldo_toko'].sum():,.2f}", border=True)
+    col2.metric("Rupiah", f"{data['rupiah'].sum():,.2f}", border=True)
     with st.form("my_form", clear_on_submit=True):
         selectedcategory = "Transfer to Bank Account"
         saldo = st.number_input("Saldo Toko Crypto", format="%.10f")
