@@ -13,6 +13,11 @@ from database import transaction_data
 
 data = transaction_data()
 
+alltransaction = data
+
+with st.expander("All Transaction"):
+    st.dataframe(alltransaction)
+
 st.title("Dashboard")
 st.divider()
 
