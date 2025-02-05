@@ -46,3 +46,16 @@ def input_data(date,rupiah, saldo_toko, rate, usdt, usdt_binance, coin, QtyCoin,
               )
     conn.commit()
     conn.close()
+
+def edit_data(df):
+    conn = sqlite3.connect("crypto.db")
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM db_transaction")
+    conn.commit()
+
+    df.to_sql('db_transaction', conn, if_exists='append', index=False)
+
+    conn.close()
+
+
