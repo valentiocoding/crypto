@@ -16,7 +16,7 @@ data = transaction_data()
 alltransaction = data
 
 with st.expander("All Transaction"):
-    editdata = st.data_editor(alltransaction)
+    editdata = st.data_editor(alltransaction,num_rows="dynamic")
 
     if st.button("Apply Edit"):
         final_data = editdata
