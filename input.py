@@ -1,10 +1,14 @@
 import streamlit as st
-import sqlite3
-from database import input_data, transaction_data
 import datetime
+from google.oauth2 import service_account
+from database import input_data, get_data
+import gspread
+import pandas as pd
+
+data = get_data()
 
 
-data = transaction_data()
+
 
 category = st.selectbox(
     "Select a category",
@@ -27,11 +31,17 @@ if category == "Top Up Toko Crypto":
         button = st.form_submit_button("Submit")
         
         if button:
-            
+          
             input_data(date,rupiah,saldo,0,0,0,"",0, selectedcategory)
             st.success("Berhasil input.")
             
             
+    
+
+
+
+
+
 elif category == "Buy USDT on Toko Crypto":
     col1,col2 = st.columns(2)
     col1.metric("Saldo Toko Crypto", f"{data['saldo_toko'].sum():,.2f}", border=True)

@@ -1,61 +1,107 @@
-import sqlite3
+import datetime
+from google.oauth2 import service_account
+import streamlit as st
+import gspread
 import pandas as pd
-# Koneksi ke database SQLite
-conn = sqlite3.connect('crypto.db')
-c = conn.cursor()
+
+def get_data():
+    google_cloud_secrets = st.secrets["google_api"]
+
+    creds = service_account.Credentials.from_service_account_info(
+        {
+            "type": google_cloud_secrets["type"],
+            "project_id": google_cloud_secrets["project_id"],
+            "private_key_id": google_cloud_secrets["private_key_id"],
+            "private_key": google_cloud_secrets["private_key"].replace("\\n", "\n"),
+            "client_email": google_cloud_secrets["client_email"],
+            "client_id": google_cloud_secrets["client_id"],
+            "auth_uri": google_cloud_secrets["auth_uri"],
+            "token_uri": google_cloud_secrets["token_uri"],
+            "auth_provider_x509_cert_url": google_cloud_secrets["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": google_cloud_secrets["client_x509_cert_url"],
+            "universe_domain": google_cloud_secrets["universe_domain"],
+        },
+        scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+    )
 
 
-# Membuat tabel topup jika belum ada
-c.execute('''
-CREATE TABLE IF NOT EXISTS db_transaction (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    date DATETIME,
-    rupiah DECIMAL(20,10),
-    saldo_toko DECIMAL(20,10),
-    rate DECIMAL(20,10),
-    usdt DECIMAL(20,10),
-    usdt_binance DECIMAL(20,10),
-    coin TEXT,
-    QtyCoin DECIMAL(20,10),
-    keterangan TEXT
-)
-''')
-    
-conn.commit()
-conn.close()
+    client = gspread.authorize(creds)
+    spreadsheet_id = "1NB2f62PEkps0KhkRzqX2AhCUQN0-RGqHdv5mhanoWj4"
 
-def transaction_data():
-    conn = sqlite3.connect('crypto.db')  # Hubungkan ke database
-    query = "SELECT * FROM db_transaction"  # Ganti dengan query yang sesuai
-    df = pd.read_sql(query, conn)  # Membaca data dari query ke DataFrame
-    conn.close()  # Menutup koneksi
-    return df
+    data = client.open_by_key(spreadsheet_id).worksheet('transaction').get_all_records()
+
+    pd.set_option('display.float_format', '{:.10f}'.format)
+
+    data = pd.DataFrame(data)
+    return data
 
 
 
-def input_data(date,rupiah, saldo_toko, rate, usdt, usdt_binance, coin, QtyCoin, keterangan):
-    conn = sqlite3.connect('crypto.db')
-    c = conn.cursor()
-    
-    c.execute("""
-              
-              INSERT INTO db_transaction(date, rupiah, saldo_toko, rate, usdt, usdt_binance, coin, QtyCoin, keterangan)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-              """,
-              (date,rupiah, saldo_toko, rate, usdt, usdt_binance, coin, QtyCoin, keterangan)
-              )
-    conn.commit()
-    conn.close()
 
-def edit_data(df):
-    conn = sqlite3.connect("crypto.db")
-    cursor = conn.cursor()
-
-    cursor.execute("DELETE FROM db_transaction")
-    conn.commit()
-
-    df.to_sql('db_transaction', conn, if_exists='append', index=False)
-
-    conn.close()
+data = get_data()
 
 
+
+
+def input_data(date, rupiah, saldo, rate, usdt, usdt_binance, coin, qty_coin,   keterangan):
+    google_cloud_secrets = st.secrets["google_api"]
+
+    creds = service_account.Credentials.from_service_account_info(
+        {
+            "type": google_cloud_secrets["type"],
+            "project_id": google_cloud_secrets["project_id"],
+            "private_key_id": google_cloud_secrets["private_key_id"],
+            "private_key": google_cloud_secrets["private_key"].replace("\\n", "\n"),
+            "client_email": google_cloud_secrets["client_email"],
+            "client_id": google_cloud_secrets["client_id"],
+            "auth_uri": google_cloud_secrets["auth_uri"],
+            "token_uri": google_cloud_secrets["token_uri"],
+            "auth_provider_x509_cert_url": google_cloud_secrets["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": google_cloud_secrets["client_x509_cert_url"],
+            "universe_domain": google_cloud_secrets["universe_domain"],
+        },
+        scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+    )
+
+
+    client = gspread.authorize(creds)
+    spreadsheet_id = "1NB2f62PEkps0KhkRzqX2AhCUQN0-RGqHdv5mhanoWj4"
+
+    sheet = client.open_by_key(spreadsheet_id).worksheet('transaction')
+
+    date = date.strftime('%d/%m/%Y')
+    data = [
+        date, rupiah, saldo, rate, usdt, usdt_binance, coin, qty_coin, keterangan
+    ]
+
+    sheet.append_row(data)
+
+
+
+
+def edit_data(data):
+    google_cloud_secrets = st.secrets["google_api"]
+
+    creds = service_account.Credentials.from_service_account_info(
+        {
+            "type": google_cloud_secrets["type"],
+            "project_id": google_cloud_secrets["project_id"],
+            "private_key_id": google_cloud_secrets["private_key_id"],
+            "private_key": google_cloud_secrets["private_key"].replace("\\n", "\n"),
+            "client_email": google_cloud_secrets["client_email"],
+            "client_id": google_cloud_secrets["client_id"],
+            "auth_uri": google_cloud_secrets["auth_uri"],
+            "token_uri": google_cloud_secrets["token_uri"],
+            "auth_provider_x509_cert_url": google_cloud_secrets["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": google_cloud_secrets["client_x509_cert_url"],
+            "universe_domain": google_cloud_secrets["universe_domain"],
+        },
+        scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+    )
+
+
+    client = gspread.authorize(creds)
+    spreadsheet_id = "1NB2f62PEkps0KhkRzqX2AhCUQN0-RGqHdv5mhanoWj4"
+    sheet = client.open_by_key(spreadsheet_id).worksheet('transaction').clear()
+    values = [data.columns.tolist()] + data.values.tolist()
+    sheet = client.open_by_key(spreadsheet_id).worksheet('transaction').update('A1',values)

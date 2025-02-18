@@ -1,5 +1,5 @@
 import streamlit as st
-from database import transaction_data
+from database import get_data
 import pandas as pd
 
 
@@ -9,7 +9,7 @@ import pandas as pd
 
 
 
-data = transaction_data()
+data = get_data()
 
 selectcoin = data[data['coin'] != ""]
 selectcoin = st.selectbox("Select Coin", selectcoin['coin'].unique())

@@ -2,16 +2,14 @@ import sqlite3
 import io
 import pandas as pd
 import streamlit as st
-from database import transaction_data, edit_data
+from database import get_data, edit_data
 import time
 
 
 
 
 
-
-
-data = transaction_data()
+data = get_data()
 
 alltransaction = data
 
@@ -22,7 +20,7 @@ with st.expander("All Transaction"):
         final_data = editdata
         edit_data(final_data)
 
-        data = transaction_data()
+        data = get_data()
 
         with st.spinner("Editing..."):
             time.sleep(1)
