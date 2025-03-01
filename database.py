@@ -43,7 +43,7 @@ data = get_data()
 
 
 
-def input_data(date, rupiah, saldo, rate, usdt, usdt_binance, coin, qty_coin,   keterangan):
+def input_data(date, rupiah, rate, usdt, coin, qty_coin,   keterangan):
     google_cloud_secrets = st.secrets["google_api"]
 
     creds = service_account.Credentials.from_service_account_info(
@@ -71,7 +71,7 @@ def input_data(date, rupiah, saldo, rate, usdt, usdt_binance, coin, qty_coin,   
 
     date = date.strftime('%d/%m/%Y')
     data = [
-        date, rupiah, saldo, rate, usdt, usdt_binance, coin, qty_coin, keterangan
+        date, rupiah,  rate, usdt, coin, qty_coin, keterangan
     ]
 
     sheet.append_row(data)

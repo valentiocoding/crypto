@@ -6,10 +6,13 @@ import pandas as pd
 
 
 
+st.session_state.data = get_data()
 
-
-
-data = get_data()
+if "data " not in st.session_state:
+    st.session_state.data = get_data()
+    
+    
+data = st.session_state.data
 
 selectcoin = data[data['coin'] != ""]
 selectcoin = st.selectbox("Select Coin", selectcoin['coin'].unique())
@@ -19,24 +22,21 @@ average_coin_rate = data[(data['coin'] == selectcoin) & (data['keterangan'] == '
 
 st.header("Estimate Profit Tools")
 col1,col2 = st.columns(2)
-col1.metric(f"Average {selectcoin} Buy Rate", f"{average_coin_rate:,.2f}", border=True)
+col1.metric(f"Average {selectcoin} Buy Rate", f"{average_coin_rate:,.10f}", border=True)
 usdt_rate_buy = data[data['keterangan'] == 'Buy USDT on Toko Crypto']['rate'].mean()
-col2.metric(f"Average USDT Buy Rate", f"{usdt_rate_buy:,.2f}", border=True)
+col2.metric(f"Average USDT Buy Rate", f"{usdt_rate_buy:,.10f}", border=True)
 
 
 coin_total = data[data['coin'] == selectcoin]['QtyCoin'].sum()
 
-st.metric(f"My {selectcoin} Coin", f"{coin_total:,.2f}")
+st.metric(f"My {selectcoin} Coin", f"{coin_total:,.10f}")
 
-qty_coin = st.number_input("Masukkan Qty BTC", format="%.10f", help="Estimasi Jumlah Coin untuk dijual")
+qty_coin = st.number_input(f"Masukkan Qty {selectcoin}", format="%.10f", help="Estimasi Jumlah Coin untuk dijual")
 
-if qty_coin > coin_total:
-    st.warning("You do not have enough coins to sell.")
-    st.stop()
 
 
 col1,col2 = st.columns(2)
-harga_btc_now = col1.number_input("Masukkan Harga BTC Sekarang", format="%.10f")
+harga_btc_now = col1.number_input(f"Masukkan Harga {selectcoin} Sekarang", format="%.10f")
 usdt_rate = col2.number_input("Masukkan Rate USDT Sekarang", format="%.10f")
 
 
